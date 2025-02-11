@@ -1,0 +1,182 @@
+def letterCheck(letter, word):
+    """Checks if a string (letter) is present in a given word.
+    Returns true if letter is present in the word, and false if its not."""
+    for i in range (0, len(word)):
+        if (letter == word[i:i+1]):
+            return True
+    return False
+def diagramMaker(word):
+    """Returns a tuple of 5 lists each containing 5 letters.
+    The first letters are the letters in the word given as a parameter.
+    The rest are the letters of the alphabet minus the ones that are already in the word."""
+
+    if(letterCheck("j", word)):
+        word = word.replace("j", "i") #If j is in the word it replaces it with the letter i.
+    abc = "abcdefghiklmnopqrstuvwxyz"
+    realABC = "" #The real abc is the abc used to determine the order of words added to the lists.
+    realABC += word #The first letters added to the lists are the letters in the word so it is the first thing in realABC.
+    for i in range (len(abc)): #Goes through the alphabet
+        if(letterCheck(abc[i:i+1], word) == False): #If the current letter is not in the word it is added to realABC, and if it is in the word it is not added.
+           realABC += abc[i:i+1]
+    fiveLetter = []
+    diagram = ()
+    for i in range(len(realABC)):
+       fiveLetter.append(realABC[i:i+1])  #Begins adding letters to the list "fiveLetter"
+       if(len(fiveLetter) == 5): #Once the length of fiveLetter is 5, it is added to the tuple diagram.
+           diagram += (fiveLetter,)
+           fiveLetter = [] #Resets five letter to an empty list.
+    return diagram #Returns the completed tuple of lists.
+def separateMessage(message):
+    """ Separates the message into pairs of two letters. These pairs are stored in lists, and these list pairs are added into a list.
+    If a pair would be two of the same letters it adds an x after the first letter, and if it was already an x it adds an i.
+    Returns a list of lists containing the letter pairs."""
+
+    unspacedMessage = ""
+    letterList = []
+    pair = []
+    for i in range(len(message)):
+        if(message[i:i+1] != " "):
+            unspacedMessage+= message[i:i+1]  #Creates a new message which is the same as the original but without any spaces.
+
+
+    if(letterCheck("j", unspacedMessage)):
+        unspacedMessage = unspacedMessage.replace("j", "i") #Replaces any j's in the message with an i
+
+
+    i = 0
+    while i < len(unspacedMessage): #Used instead of a for loop because the amount i increases by varies depending on the circumstance
+        if i < len(unspacedMessage) - 1 and unspacedMessage[i] == unspacedMessage[i + 1]: #Checks if two letters next to eachother are the same, and that unspacedMessage[i] is not the last letter of the message to prevent an out of bounds error
+            if(unspacedMessage[i] == "x"): #Checks if the letters are x's.
+                pair = unspacedMessage[i] + 'i' #If the letters are an x, the second letter in the pair becomes an i.
+                letterList.append(pair) #Adds the pair to the list
+            else:
+                pair = unspacedMessage[i] + 'x' #If the letters are not an x, adds the first letter, and then an x
+                letterList.append(pair) #Adds this pair to the list.
+        else: #If the letters are not the same or unspacedMessage[i] is the last letter of the message
+            if i < len(unspacedMessage) - 1:
+                pair = unspacedMessage[i] + unspacedMessage[i + 1]
+                letterList.append(pair)
+                i += 1  #Increases to prevent adding the same letter when the loop repeats
+            else: #unspacedMessage[i] is the last letter of the message
+                pair = unspacedMessage[i]
+                if(pair == "x"):  #Adds an x or i to prevent adding a pair that is just one letter long.
+                    pair += "i"
+                else:
+                    pair+= "x"
+                letterList.append(pair)
+        i += 1 #Increases i by one to move on to the next letter
+    return letterList #Returns a list of letter pairs stored in lists
+def sameRow(tupleDiagram, pair):
+    """Goes through through the diagram to find the position of the pair of letters.
+    Returns true if both the letters are in the same row, and false if they are not."""
+
+    row = 0
+    for r in range(5):
+        for c in range(5):
+            if(tupleDiagram[r][c] == pair[0]): #Finds the position of the first letter in the pair
+                row = r #Sets row equal to the row of the first letter
+
+
+    for c in range(5):
+        if(tupleDiagram[row][c] == pair[1]): #Goes through the whole row to see if the second letter in the pair is in the same row.
+            return True #Returns true if they are in the same row.
+    return False #Returns false if they are not in the same row.
+def sameCol(tupleDiagram, pair):
+    """Goes through through the diagram to find the position of the pair of letters.
+    Returns true if both the letters are in the same column, and false if they are not."""
+    col = 0
+    for c in range(5):
+        for r in range(5):
+            if(tupleDiagram[r][c] == pair[0]): #Finds the position of the first letter in the pair
+                col = c #Sets col equal to the column of the first letter
+
+
+    for r in range(5):
+        if(tupleDiagram[r][col] == pair[1]): #Goes through the column to see if the second letter is there
+            return True #Returns true if both letters are in the same column
+    return False #Returns false if the letters are not in the same column
+def rowEncode(tupleDiagram, pair):
+    """Encodes the pair of letters if they are in the same row
+    The encoded letter is the next letter in the row, but if the original letter is the last letter in the row then it goes back to the begining of the row
+    Returns a list containing the encoded pair of letters"""
+    encodedPair = []
+    for r in range(5):
+        for c in range(5):
+            if(tupleDiagram[r][c] == pair[0] and c == 4): #Checks if the first letter in the pair is the last letter in the row
+                encodedPair.append(tupleDiagram[r][0])#If it is the last letter, it adds the first letter in the row to the encodedPair.
+            elif(tupleDiagram[r][c] ==pair[0]):
+                encodedPair.append(tupleDiagram[r][c+1]) #If it is not the last letter, it just adds the next letter in the row
+    for r in range(5):
+        for c in range(5):
+            if(tupleDiagram[r][c] == pair[1] and c == 4): #Checks if the second letter in the pair is the last letter in the row
+                encodedPair.append(tupleDiagram[r][0])#If it is the last letter, adds the first letter in the row.
+            elif(tupleDiagram[r][c] ==pair[1]):
+                encodedPair.append(tupleDiagram[r][c+1]) #If its not the last letter, adds the next letter in the row to the encodedPair.
+    return encodedPair #Returns the encoded pair of letters as a list.
+def colEncode(tupleDiagram, pair):
+    """Encodes the pair of letters if they are in the same column
+    The encoded letter is the next letter in the column, but if the original letter is the last letter in the column then it goes back to the begining of the column
+    Returns a list containing the encoded pair of letters"""
+    encodedPair = []
+    for c in range(5):
+        for r in range(5):
+            if(tupleDiagram[r][c] == pair[0] and r == 4): #Checks if the first letter in the pair is the last letter in the column.
+                encodedPair.append(tupleDiagram[0][c]) #If it is, it adds the first letter in the column to the encodedPair.
+            elif(tupleDiagram[r][c] ==pair[0]):
+                encodedPair.append(tupleDiagram[r+1][c]) #If it is not the last letter, adds the next letter in the column to the encodedPair.
+    for c in range(5):
+        for r in range(5):
+            if(tupleDiagram[r][c] == pair[1] and r == 4): #Checks if the second letter in the pair is the last letter in the column.
+                encodedPair.append(tupleDiagram[0][c])#If it is the last letter, it adds the first letter in the column to encodedPair.
+            elif(tupleDiagram[r][c] ==pair[1]):
+                encodedPair.append(tupleDiagram[r+1][c]) #If it is not the last letter, adds the next letter in the column to the encodedPair.
+    return encodedPair #Returns the encoded pair of letters as a list.
+def otherEncode(tupleDiagram, pair):
+    """Encodes the pair of letters if they are not in the same column nor the same row.
+    The encoded first letter is where the row of the first letter intersects with the column of the second letter
+    The encoded second letter is where the row of the second letter intersects with the column of the first letter
+    Returns a list containg the encoded pair of letters."""
+    row1= 0 #row1, and col1 are the row and column positions of the first letter in the pair
+    row2 = 0#row2 and col2 are the row and column positions of the second letter in the pair
+    col1 = 0
+    col2 = 0
+    encodedPair = []
+    for r in range(5):
+        for c in range(5):
+            if(tupleDiagram[r][c] == pair[0]): #Finds the position of the first letter in the pair
+                row1 = r #Sets row1 equal to the row position of the first letter
+                col1 = c #Sets col1 equal to the col position of the first letter
+            elif(tupleDiagram[r][c] ==pair[1]):
+                row2 = r #Sets row2 equal to the row position of the second letter
+                col2 = c #Sets col2 equal to the column position of the second letter
+    encodedPair.append(tupleDiagram[row1][col2]) #Adds the letter where the row of the first letter and the column of the second letter intersect
+    encodedPair.append(tupleDiagram[row2][col1]) #Adds the letter where the row of the second letter and the column of the second letter intersect
+    return encodedPair
+def playFairCipher():
+    """
+    Encodes a message given by a user, using the key given by a user.
+    Prints the encoded message in pairs of two letters seperated by a space
+    """
+    encodedDiagram = []
+    encodedMessage = ""
+    print("Welcome to the PlayFair Cipher.")
+    key = input("What key would you like to use?") #Asks user for a key
+    diagram = diagramMaker(key) #Creates diagram using key given by the user
+    message = input("What message do you want to encode?") #Asks user for a message
+    splitMessage = separateMessage(message) #Creates splitMessage variable to hold the list containing the pair of letters in the message
+    for i in range(len(splitMessage)):
+        if(sameRow(diagram, splitMessage[i]) == True): #Checks if the pair of letters are in the same row
+            encodedDiagram.append(rowEncode(diagram, splitMessage[i])) #Encodes the letters if they are in the same row
+        elif(sameCol(diagram, splitMessage[i]) == True): #Checks if the pair of letters if they are in the same column
+            encodedDiagram.append(colEncode(diagram, splitMessage[i])) #Encodes the letters if they are in the same column
+        else: #If it is not in the same row nor the same column.
+            encodedDiagram.append(otherEncode(diagram,splitMessage[i]))  #Encodes the letters using otherEncode since they are not in the same row nor the same column
+    print("Here is your encoded message:")
+    for i in range(len(encodedDiagram)):
+        for j in range(len(encodedDiagram[0])):
+            encodedMessage += encodedDiagram[i][j] #Adds the pair of letters to a string
+        encodedMessage += " " #Seperates the pair of letters using a space
+    print(encodedMessage)
+
+
+playFairCipher()
